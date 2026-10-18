@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { FINANCE_FIELD_LIMITS, type FinanceField } from "@/lib/finance-limits";
 
 interface ForecastMonth { month: number; label: string; mrr: number; burn: number; cash: number; }
 interface Recommendation { category: string; action: string; impact: string; urgency: string; }
@@ -59,19 +60,20 @@ export default function Home() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              {[
+              {([
                 { key: "mrr", label: "Monthly Revenue (MRR)", placeholder: "50000" },
                 { key: "monthlyBurn", label: "Monthly Burn", placeholder: "80000" },
                 { key: "cashOnHand", label: "Cash on Hand", placeholder: "500000" },
                 { key: "growthRate", label: "MoM Growth Rate (%)", placeholder: "8" },
                 { key: "teamSize", label: "Team Size", placeholder: "10" },
                 { key: "stage", label: "Stage", placeholder: "Seed" },
-              ].map(({ key, label, placeholder }) => (
+              ] as const satisfies readonly { key: FinanceField; label: string; placeholder: string }[]).map(({ key, label, placeholder }) => (
                 <div key={key} className="space-y-1">
                   <Label className="text-slate-300">{label}</Label>
                   <Input
+                    maxLength={FINANCE_FIELD_LIMITS[key]}
                     placeholder={placeholder}
-                    value={form[key as keyof typeof form]}
+                    value={form[key]}
                     onChange={e => set(key, e.target.value)}
                     className="bg-slate-800 border-slate-700 text-white"
                   />
