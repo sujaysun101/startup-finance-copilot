@@ -150,18 +150,18 @@ function tooManyRequests(): NextResponse {
 
 async function rateLimitError(req: NextRequest): Promise<NextResponse | null> {
   const ip = clientIp(req);
-  const limiters = getUpstashLimiters();
-  if (limiters) {
-    try {
+  try {
+    const limiters = getUpstashLimiters();
+    if (limiters) {
       const minute = await limiters.minute.limit(ip);
       if (!minute.success) return tooManyRequests();
       const day = await limiters.day.limit(ip);
       if (!day.success) return tooManyRequests();
       return null;
-    } catch {
-      // Upstash client errors can include the request URL. Do not log them.
-      return NextResponse.json({ error: "Rate limiter unavailable" }, { status: 503 });
     }
+  } catch {
+    // Upstash client errors can include the request URL. Do not log them.
+    return NextResponse.json({ error: "Rate limiter unavailable" }, { status: 503 });
   }
 
   const now = Date.now();
